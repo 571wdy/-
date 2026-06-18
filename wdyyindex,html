@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>沪教牛津五下 · 单词闯关</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #eef3ff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+        }
+        #app {
+            width: 100%;
+            max-width: 520px;
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+            padding: 22px 20px 26px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #1e293b;
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+        /* 单元选择 */
+        #unit-select p {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.95rem;
+            margin-bottom: 14px;
+        }
+        .unit-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        .unit-btn {
+            background: #e6edff;
+            border: none;
+            border-radius: 14px;
+            padding: 14px 0;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #1e293b;
+            cursor: pointer;
+            transition: 0.15s;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        }
+        .unit-btn:active {
+            background: #cddbfc;
+            transform: scale(0.94);
+        }
+        /* 游戏界面 */
+        #game {
+            display: none;
+        }
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        #unitTitle {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #1e293b;
+        }
+        #gameMenuBtn {
+            background: none;
+            border: none;
+            color: #3b82f6;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+        #gameMenuBtn:active {
+            background: #eef2ff;
+        }
+        #progress {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 12px;
+        }
+        #question-area {
+            background: #f8faff;
+            border-radius: 18px;
+            padding: 18px 14px;
+            margin-bottom: 8px;
+        }
+        #question-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 18px;
+            line-height: 1.6;
+            min-height: 2.8em;
+            word-break: break-word;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .option-btn {
+            background: #ffffff;
+            border: 2px solid #dbe4f0;
+            border-radius: 14px;
+            padding: 16px 6px;
+            font-size: 1rem;
+            color: #1e293b;
+            cursor: pointer;
+            transition: 0.12s;
+            text-align: center;
+            word-break: break-word;
+            line-height: 1.3;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+        }
+        .option-btn:active:not(:disabled) {
+            background: #f1f5fe;
+            transform: scale(0.96);
+        }
+        .option-btn.correct {
+            background: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+        .option-btn.wrong {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+        .option-btn:disabled {
+            cursor: default;
+            opacity: 0.85;
+        }
+        #feedback {
+            text-align: center;
+            margin: 12px 0 6px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            min-height: 2rem;
+        }
+        .action-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 6px;
+        }
+        .action-row button {
+            flex: 1;
+            border: none;
+            border-radius: 14px;
+            padding: 14px 0;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.12s;
+        }
+        #next-btn {
+            background: #3b82f6;
+            color: #fff;
+        }
+        #next-btn:active {
+            background: #2563eb;
+        }
+        #back-btn {
+            background: #e5e7eb;
+            color: #1f2937;
+        }
+        #back-btn:active {
+            background: #d1d5db;
+        }
+        /* 结果页 */
+        #result {
+            display: none;
+            text-align: center;
+            padding: 20px 0 10px;
+        }
+        #result h2 {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+        #result p {
+            font-size: 1.2rem;
+            margin: 6px 0;
+            color: #334155;
+        }
+        #scoreMsg {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-top: 12px;
+            color: #0f172a;
+        }
+        .result-btns {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+        .result-btns button {
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .result-btns button:active {
+            background: #2563eb;
+        }
+        .result-btns button:last-child {
+            background: #e5e7eb;
+            color: #1f2937;
+        }
+        .result-btns button:last-child:active {
+            background: #d1d5db;
+        }
+        @media (max-width: 420px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+            .unit-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>🌟 单词闯关</h1>
+        <!-- 单元选择 -->
+        <div id="unit-select">
+            <p>选择单元，开始挑战</p>
+            <div class="unit-grid" id="unitGrid"></div>
+        </div>
+        <!-- 游戏 -->
+        <div id="game">
+            <div class="game-header">
+                <span id="unitTitle">Unit 1</span>
+                <button id="gameMenuBtn">← 返回</button>
+            </div>
+            <div id="progress">第 <span id="curQ">1</span> / <span id="totalQ">10</span> 题</div>
+            <div id="question-area">
+                <div id="question-text"></div>
+                <div class="options" id="optionsContainer"></div>
+            </div>
+            <div id="feedback"></div>
+            <div class="action-row">
+                <button id="next-btn" style="display:none;">下一题</button>
+                <button id="back-btn" style="display:none;">查看结果</button>
+            </div>
+        </div>
+        <!-- 结果 -->
+        <div id="result">
+            <h2>🎉 完成!</h2>
+            <p>答对 <span id="correctCount">0</span> / <span id="totalQResult">0</span></p>
+            <p id="scoreMsg"></p>
+            <div class="result-btns">
+                <button onclick="backToMenu()">返回菜单</button>
+                <button onclick="restartUnit()">重玩本单元</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // ========== 数据 ==========
+        const rawUnits = [{
+            title: "Unit 1",
+            words: [
+                { en: "tidy", cn: "整理；整洁的" },
+                { en: "mess", cn: "脏乱；不整洁" },
+                { en: "let", cn: "让" },
+                { en: "sock", cn: "短袜" },
+                { en: "yours", cn: "你的；你们的" },
+                { en: "cap", cn: "帽子" },
+                { en: "mine", cn: "我的" },
+                { en: "crayon", cn: "彩色蜡笔(或粉笔、铅笔)" },
+                { en: "umbrella", cn: "伞" },
+                { en: "nail", cn: "钉子" },
+                { en: "drop", cn: "使落下；掉落" },
+                { en: "stick", cn: "粘贴；粘住" },
+                { en: "second", cn: "秒(时间单位)" },
+                { en: "hers", cn: "她的" },
+                { en: "theirs", cn: "他们的；她们的；它们的" },
+                { en: "tidy up", cn: "把……整理好" },
+                { en: "(be) full of", cn: "装满……；充满……" },
+                { en: "a few", cn: "几个；一些" }
+            ],
+            extra: [
+                { question: "这个短袜是你的吗？", options: ["Is this sock yours?", "Is this sock mine?", "Is this sock his?", "Is this sock hers?"], answer: "Is this sock yours?" },
+                { question: "这顶帽子是我的。", options: ["This cap is mine.", "This cap is my.", "This cap is me.", "This cap is I."], answer: "This cap is mine." },
+                { question: "他的蜡笔比她的多。", options: ["His crayons are more than hers.", "His crayon is more than her.", "His crayons are more than she.", "His crayons are many than hers."], answer: "His crayons are more than hers." }
+            ]
+        }, {
+            title: "Unit 2",
+            words: [
+                { en: "why", cn: "为什么" },
+                { en: "because", cn: "因为" },
+                { en: "study", cn: "书房；学习" },
+                { en: "dining room", cn: "餐室；餐厅" },
+                { en: "wild goose", cn: "大雁(复数wild geese)" },
+                { en: "change", cn: "改变；变化" },
+                { en: "place", cn: "地方" },
+                { en: "twice", cn: "两次" },
+                { en: "every", cn: "每；每个" },
+                { en: "north", cn: "北方；向北" },
+                { en: "south", cn: "南方；向南" },
+                { en: "enough", cn: "足够的" },
+                { en: "then", cn: "然后" },
+                { en: "all day", cn: "一天到晚" }
+            ],
+            extra: [
+                { question: "他为什么学习英语？因为他想当翻译。", options: ["Why does he study English? Because he wants to be a translator.", "Why do he study English? Because he want to be a translator.", "Why does he study English? Because he want to be a translator.", "Why does he studied English? Because he wants to be a translator."], answer: "Why does he study English? Because he wants to be a translator." },
+                { question: "每年有两次考试。", options: ["There are two exams every year.", "There are twice exams every year.", "There are two exam every year.", "There have two exams every year."], answer: "There are two exams every year." },
+                { question: "大雁每年冬天飞到南方。", options: ["Wild geese fly to the south every winter.", "Wild goose fly to the south every winter.", "Wild geese flies to the south every winter.", "Wild geese fly to south every winter."], answer: "Wild geese fly to the south every winter." }
+            ]
+        }, {
+            title: "Unit 3",
+            words: [
+                { en: "future", cn: "将来；未来" },
+                { en: "stand", cn: "站；站住" },
+                { en: "machine", cn: "机器" },
+                { en: "will", cn: "将；将会" },
+                { en: "exercise", cn: "运动；锻炼；活动" },
+                { en: "early", cn: "早；提早" },
+                { en: "easily", cn: "容易地" },
+                { en: "hard", cn: "努力地" },
+                { en: "more", cn: "更多的" },
+                { en: "in the future", cn: "将来" },
+                { en: "in front of", cn: "在……前面" },
+                { en: "take a photo", cn: "拍照" },
+                { en: "wear glasses", cn: "戴眼镜" },
+                { en: "do exercise", cn: "做运动" },
+                { en: "(be) weak in", cn: "不擅长" },
+                { en: "not...any more", cn: "不再" }
+            ],
+            extra: [
+                { question: "我将来会成为一名医生。", options: ["I will be a doctor in the future.", "I am a doctor in the future.", "I will became a doctor in the future.", "I will be a doctor in future."], answer: "I will be a doctor in the future." },
+                { question: "她每天早上早起锻炼。", options: ["She gets up early and does exercise every morning.", "She get up early and does exercise every morning.", "She gets up early and do exercise every morning.", "She gets up early and does exercises every morning."], answer: "She gets up early and does exercise every morning." },
+                { question: "请不要站在机器前面。", options: ["Please don't stand in front of the machine.", "Please don't stand in the front of the machine.", "Please not stand in front of the machine.", "Please don't stands in front of the machine."], answer: "Please don't stand in front of the machine." }
+            ]
+        }, {
+            title: "Unit 4",
+            words: [
+                { en: "storybook", cn: "故事书" },
+                { en: "buy", cn: "买" },
+                { en: "story", cn: "故事" },
+                { en: "dictionary", cn: "字典；词典" },
+                { en: "magazine", cn: "杂志" },
+                { en: "newspaper", cn: "报纸" },
+                { en: "week", cn: "周；星期" },
+                { en: "student", cn: "学生" },
+                { en: "poster", cn: "海报" },
+                { en: "best", cn: "最好的" },
+                { en: "writer", cn: "作家" },
+                { en: "over there", cn: "在那边" },
+                { en: "do a survey", cn: "做调查" },
+                { en: "act...out", cn: "表演" }
+            ],
+            extra: [
+                { question: "你通常在哪儿买故事书？", options: ["Where do you usually buy storybooks?", "Where do you usually buy story?", "Where are you usually buy storybooks?", "Where do you often buy storybook?"], answer: "Where do you usually buy storybooks?" },
+                { question: "这个字典是学生的吗？", options: ["Is this dictionary the student's?", "Is this dictionary the student?", "Is this dictionary students'?", "Is this dictionary of student?"], answer: "Is this dictionary the student's?" },
+                { question: "请做一次调查。", options: ["Please do a survey.", "Please make a survey.", "Please do survey.", "Please do a research."], answer: "Please do a survey." }
+            ]
+        }, {
+            title: "Unit 5",
+            words: [
+                { en: "weekend", cn: "周末" },
+                { en: "stay", cn: "待；暂住；逗留" },
+                { en: "film", cn: "电影" },
+                { en: "boat", cn: "小船；舟" },
+                { en: "plan", cn: "安排；计划" },
+                { en: "tomorrow", cn: "明天" },
+                { en: "build", cn: "建筑；建造" },
+                { en: "next", cn: "紧接着；随后；紧接着的" },
+                { en: "swing", cn: "秋千" },
+                { en: "cry", cn: "哭；喊叫" },
+                { en: "until", cn: "直到" },
+                { en: "see a film", cn: "看电影" },
+                { en: "row a boat", cn: "划船" }
+            ],
+            extra: [
+                { question: "明天你打算做什么？", options: ["What are you going to do tomorrow?", "What do you do tomorrow?", "What will you do tomorrow?", "What are you doing tomorrow?"], answer: "What are you going to do tomorrow?" },
+                { question: "我们下周将建造一个秋千。", options: ["We will build a swing next week.", "We will build a swing next week?", "We build a swing next week.", "We will built a swing next week."], answer: "We will build a swing next week." },
+                { question: "他每天哭直到妈妈来。", options: ["He cries until his mother comes.", "He cry until his mother comes.", "He cries until his mother will come.", "He doesn't cry until his mother comes."], answer: "He cries until his mother comes." }
+            ]
+        }, {
+            title: "Unit 6",
+            words: [
+                { en: "holiday", cn: "假日；假期" },
+                { en: "clear", cn: "清澈的" },
+                { en: "seafood", cn: "海鲜" },
+                { en: "hotel", cn: "旅馆" },
+                { en: "island", cn: "岛" },
+                { en: "butterfly", cn: "蝴蝶" },
+                { en: "how long", cn: "多久" },
+                { en: "go swimming", cn: "去游泳" },
+                { en: "in the south of", cn: "在……的南部" },
+                { en: "all year round", cn: "一年到头" }
+            ],
+            extra: [
+                { question: "你打算在岛上待多久？", options: ["How long are you going to stay on the island?", "How long do you stay on the island?", "How much do you stay on the island?", "How long will you stay on island?"], answer: "How long are you going to stay on the island?" },
+                { question: "湖水很清澈。", options: ["The lake is very clear.", "The lake is very clean.", "The lake is very clearly.", "The lake is very cleared."], answer: "The lake is very clear." },
+                { question: "蝴蝶一年到头都在南方。", options: ["Butterflies stay in the south all year round.", "Butterfly stay in the south all year round.", "Butterflies stays in the south all year round.", "Butterflies stay in south all year round."], answer: "Butterflies stay in the south all year round." }
+            ]
+        }, {
+            title: "Unit 7",
+            words: [
+                { en: "meet", cn: "迎接；会见" },
+                { en: "school gate", cn: "校门；校门口" },
+                { en: "art room", cn: "美术室" },
+                { en: "hall", cn: "礼堂" },
+                { en: "finally", cn: "最后" },
+                { en: "meeting room", cn: "会客室；会议室" },
+                { en: "show", cn: "给……看" },
+                { en: "project", cn: "课题" },
+                { en: "board", cn: "布告牌；木板" },
+                { en: "keep quiet", cn: "保持安静" },
+                { en: "have a look", cn: "看一看" }
+            ],
+            extra: [
+                { question: "在校门口见我。", options: ["Meet me at the school gate.", "Meet I at the school gate.", "Meeting me at the school gate.", "Meet me in the school gate."], answer: "Meet me at the school gate." },
+                { question: "让我看看你的课题。", options: ["Show me your project.", "Show my your project.", "Show I your project.", "Look me your project."], answer: "Show me your project." },
+                { question: "最后，我们去美术室。", options: ["Finally, we go to the art room.", "Final, we go to the art room.", "Finally, we goes to the art room.", "Finally, we are go to the art room."], answer: "Finally, we go to the art room." }
+            ]
+        }, {
+            title: "Unit 8",
+            words: [
+                { en: "which", cn: "哪一个；哪一些" },
+                { en: "trousers", cn: "裤子" },
+                { en: "size", cn: "尺码" },
+                { en: "sweater", cn: "毛衣" },
+                { en: "coat", cn: "外套；大衣" },
+                { en: "shoe", cn: "鞋" },
+                { en: "emperor", cn: "皇帝" },
+                { en: "only", cn: "只有；仅" },
+                { en: "nod", cn: "点头" },
+                { en: "smile", cn: "笑容；微笑" },
+                { en: "money", cn: "钱" },
+                { en: "keep", cn: "保持" },
+                { en: "laugh", cn: "大笑" },
+                { en: "try...on", cn: "试穿(衣物)" },
+                { en: "put...on", cn: "穿；戴" }
+            ],
+            extra: [
+                { question: "你想要哪条裤子，大的还是小的？", options: ["Which trousers do you want, big or small?", "What trousers do you want, big or small?", "Which trousers you want, big or small?", "Which trousers do you want, big or small?"], answer: "Which trousers do you want, big or small?" },
+                { question: "请试试这件毛衣。", options: ["Please try on this sweater.", "Please try this sweater.", "Please try in this sweater.", "Please try out this sweater."], answer: "Please try on this sweater." },
+                { question: "皇帝穿上了他的新衣服。", options: ["The emperor put on his new clothes.", "The emperor put on his new cloths.", "The emperor wears on his new clothes.", "The emperor put on his new coat."], answer: "The emperor put on his new clothes." }
+            ]
+        }, {
+            title: "Unit 9",
+            words: [
+                { en: "ill", cn: "生病的；不舒服" },
+                { en: "headache", cn: "头痛" },
+                { en: "fever", cn: "发烧；发热" },
+                { en: "should", cn: "应该" },
+                { en: "medicine", cn: "药" },
+                { en: "rest", cn: "休息" },
+                { en: "toothache", cn: "牙痛" },
+                { en: "toothless", cn: "没有牙齿的" },
+                { en: "present", cn: "礼物" },
+                { en: "world", cn: "世界" },
+                { en: "dentist", cn: "牙医" },
+                { en: "have a headache", cn: "头疼" },
+                { en: "have a fever", cn: "发烧" },
+                { en: "have a cold", cn: "感冒" },
+                { en: "have a rest", cn: "休息一下" },
+                { en: "get well", cn: "康复" },
+                { en: "have a toothache", cn: "牙疼" },
+                { en: "have a meeting", cn: "开会" },
+                { en: "pull...out", cn: "把……拔出" }
+            ],
+            extra: [
+                { question: "你头疼应该多休息。", options: ["You should have a rest if you have a headache.", "You should have rest if you have headache.", "You should have a rest if you have headache.", "You should has a rest if you have a headache."], answer: "You should have a rest if you have a headache." },
+                { question: "我感冒了，所以去看医生。", options: ["I have a cold, so I go to see a doctor.", "I have cold, so I go to see a doctor.", "I have a cold, so I go to see dentist.", "I had a cold, so I will see a doctor."], answer: "I have a cold, so I go to see a doctor." },
+                { question: "牙医把我的牙齿拔了。", options: ["The dentist pulled my tooth out.", "The dentist pulled my tooth.", "The dentist pull out my tooth.", "The dentist pulls my tooth out."], answer: "The dentist pulled my tooth out." }
+            ]
+        }, {
+            title: "Unit 10",
+            words: [
+                { en: "invention", cn: "发明；创造" },
+                { en: "watch", cn: "手表" },
+                { en: "anywhere", cn: "任何地方" },
+                { en: "travel", cn: "旅行；长途行走" },
+                { en: "invent", cn: "发明" },
+                { en: "something", cn: "某事；某物" },
+                { en: "myself", cn: "我自己" },
+                { en: "camera", cn: "相机" },
+                { en: "far away from", cn: "远离……" }
+            ],
+            extra: [
+                { question: "爱迪生发明了很多东西。", options: ["Edison invented many things.", "Edison invent many things.", "Edison invents many things.", "Edison invented much things."], answer: "Edison invented many things." },
+                { question: "我自己做了这个相机。", options: ["I made this camera myself.", "I made myself this camera.", "I do this camera myself.", "I make this camera myself."], answer: "I made this camera myself." },
+                { question: "这个小岛远离城市。", options: ["This island is far away from the city.", "This island is far away city.", "This island is far from away city.", "This island is far away from city."], answer: "This island is far away from the city." }
+            ]
+        }, {
+            title: "Unit 11",
+            words: [
+                { en: "festival", cn: "节日" },
+                { en: "important", cn: "重要的" },
+                { en: "call", cn: "把……叫做" },
+                { en: "dumpling", cn: "饺子" },
+                { en: "relative", cn: "亲戚" },
+                { en: "red packet", cn: "红包" },
+                { en: "firework", cn: "烟火；烟花" },
+                { en: "monster", cn: "怪物" },
+                { en: "end", cn: "结尾；结束" },
+                { en: "village", cn: "村庄" },
+                { en: "last", cn: "最后的" },
+                { en: "firecracker", cn: "鞭炮；爆竹" },
+                { en: "mooncake", cn: "月饼" },
+                { en: "at the end of", cn: "在……的最后" }
+            ],
+            extra: [
+                { question: "春节是中国最重要的节日。", options: ["The Spring Festival is the most important festival in China.", "Spring Festival is the most important festival in China.", "The Spring Festival is the more important festival in China.", "The Spring Festival is the importantest festival in China."], answer: "The Spring Festival is the most important festival in China." },
+                { question: "在年底，我们放鞭炮。", options: ["At the end of the year, we set off firecrackers.", "In the end of the year, we set off firecrackers.", "At the end of year, we set off firecrackers.", "At the end of the year, we set off fireworks."], answer: "At the end of the year, we set off firecrackers." },
+                { question: "我们叫这种食物为“饺子”。", options: ["We call this food \"dumpling\".", "We call this food \"dumplings\".", "We name this food \"dumpling\".", "We called this food \"dumpling\"."], answer: "We call this food \"dumpling\"." }
+            ]
+        }, {
+            title: "Unit 12",
+            words: [
+                { en: "giant", cn: "巨人" },
+                { en: "wall", cn: "墙；围墙" },
+                { en: "kind", cn: "友好的；体贴的" },
+                { en: "through", cn: "穿过" },
+                { en: "no entry", cn: "禁止进入" },
+                { en: "(be) kind to", cn: "对……友好" },
+                { en: "knock down", cn: "推倒；拆掉" }
+            ],
+            extra: [
+                { question: "禁止进入花园。", options: ["No entry to the garden.", "No enter the garden.", "Not entry to the garden.", "Don't entry to the garden."], answer: "No entry to the garden." },
+                { question: "这位巨人很友善，他让孩子们穿过花园。", options: ["The giant is kind, he lets the children through the garden.", "The giant is kind, he let the children through the garden.", "The giant is kind, he allows the children to go through garden.", "The giant kind, he lets the children through the garden."], answer: "The giant is kind, he lets the children through the garden." },
+                { question: "工人们推倒了墙。", options: ["The workers knocked down the wall.", "The workers knock down the wall.", "The workers knocked down wall.", "The workers knocked the wall."], answer: "The workers knocked down the wall." }
+            ]
+        }];
+
+        // ========== 工具 ==========
+        function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // ========== 生成单词题目 ==========
+        function genWordQuestions(words) {
+            const questions = [];
+            words.forEach((word, idx) => {
+                const dir = idx % 2 === 0 ? 'en2cn' : 'cn2en';
+                let qText, correctAns, otherField;
+                if (dir === 'en2cn') {
+                    qText = word.en;
+                    correctAns = word.cn;
+                    otherField = 'cn';
+                } else {
+                    qText = word.cn;
+                    correctAns = word.en;
+                    otherField = 'en';
+                }
+                const others = words.filter((_, i) => i !== idx);
+                let distractors = [];
+                if (others.length <= 3) {
+                    distractors = others.map(w => w[otherField]);
+                } else {
+                    const shuffled = shuffle([...others]);
+                    for (let i = 0; i < 3; i++) {
+                        distractors.push(shuffled[i][otherField]);
+                    }
+                }
+                // 确保选项够4个（一般够了）
+                let options = [correctAns, ...distractors];
+                questions.push({
+                    question: qText,
+                    options: options,
+                    answer: correctAns
+                });
+            });
+            return questions;
+        }
+
+        function buildUnitQuestions(unit) {
+            const wordQs = genWordQuestions(unit.words);
+            const extraQs = unit.extra.map(e => ({
+                question: e.question,
+                options: e.options.slice(), // 保持原始数组
+                answer: e.answer
+            }));
+            const all = wordQs.concat(extraQs);
+            return shuffle(all);
+        }
+
+        // ========== 状态 ==========
+        let state = {
+            currentUnitIdx: -1,
+            questions: [],
+            currentQIndex: 0,
+            correct: 0,
+            answered: false,
+            totalQuestions: 0
+        };
+
+        // ========== DOM ==========
+        const unitGrid = document.getElementById('unitGrid');
+        const selectDiv = document.getElementById('unit-select');
+        const gameDiv = document.getElementById('game');
+        const resultDiv = document.getElementById('result');
+        const unitTitleSpan = document.getElementById('unitTitle');
+        const gameMenuBtn = document.getElementById('gameMenuBtn');
+        const curQSpan = document.getElementById('curQ');
+        const totalQSpan = document.getElementById('totalQ');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const feedbackDiv = document.getElementById('feedback');
+        const nextBtn = document.getElementById('next-btn');
+        const backBtn = document.getElementById('back-btn');
+        const correctCountSpan = document.getElementById('correctCount');
+        const totalQResultSpan = document.getElementById('totalQResult');
+        const scoreMsg = document.getElementById('scoreMsg');
+
+        // ========== 界面函数 ==========
+        function initMenu() {
+            unitGrid.innerHTML = '';
+            rawUnits.forEach((unit, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'unit-btn';
+                btn.textContent = unit.title;
+                btn.addEventListener('click', () => startUnit(idx));
+                unitGrid.appendChild(btn);
+            });
+        }
+        initMenu();
+
+        function startUnit(idx) {
+            state.currentUnitIdx = idx;
+            state.questions = buildUnitQuestions(rawUnits[idx]);
+            state.currentQIndex = 0;
+            state.correct = 0;
+            state.answered = false;
+            state.totalQuestions = state.questions.length;
+            unitTitleSpan.textContent = rawUnits[idx].title;
+            selectDiv.style.display = 'none';
+            gameDiv.style.display = 'block';
+            resultDiv.style.display = 'none';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = state.questions[state.currentQIndex];
+            curQSpan.textContent = state.currentQIndex + 1;
+            totalQSpan.textContent = state.totalQuestions;
+            questionText.textContent = q.question;
+            // 打乱选项
+            let opts = [...q.options];
+            shuffle(opts);
+            const correctIdx = opts.indexOf(q.answer);
+            optionsContainer.innerHTML = '';
+            opts.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt;
+                btn.dataset.index = i;
+                btn.addEventListener('click', () => handleOptionClick(i, correctIdx, btn));
+                optionsContainer.appendChild(btn);
+            });
+            feedbackDiv.innerHTML = '';
+            nextBtn.style.display = 'none';
+            backBtn.style.display = 'none';
+            state.answered = false;
+        }
+
+        function handleOptionClick(selectedIdx, correctIdx, clickedBtn) {
+            if (state.answered) return;
+            state.answered = true;
+            const allBtns = optionsContainer.querySelectorAll('.option-btn');
+            allBtns.forEach(b => b.disabled = true);
+            allBtns.forEach((b, idx) => {
+                if (idx === correctIdx) b.classList.add('correct');
+                else if (idx === selectedIdx && selectedIdx !== correctIdx) b.classList.add('wrong');
+            });
+            if (selectedIdx === correctIdx) {
+                feedbackDiv.innerHTML = '<span style="color:#10b981;">✅ 正确!</span>';
+                state.correct++;
+            } else {
+                const correctText = allBtns[correctIdx].textContent;
+                feedbackDiv.innerHTML = `<span style="color:#ef4444;">❌ 正确答案: ${correctText}</span>`;
+            }
+            // 下一题或结果
+            if (state.currentQIndex < state.totalQuestions - 1) {
+                nextBtn.style.display = 'block';
+                backBtn.style.display = 'none';
+            } else {
+                nextBtn.style.display = 'none';
+                backBtn.style.display = 'block';
+                backBtn.textContent = '查看结果';
+                backBtn.onclick = showResult;
+            }
+        }
+
+        nextBtn.addEventListener('click', () => {
+            if (state.answered && state.currentQIndex < state.totalQuestions - 1) {
+                state.currentQIndex++;
+                showQuestion();
+            }
+        });
+
+        function showResult() {
+            gameDiv.style.display = 'none';
+            resultDiv.style.display = 'block';
+            correctCountSpan.textContent = state.correct;
+            totalQResultSpan.textContent = state.totalQuestions;
+            const pct = Math.round(state.correct / state.totalQuestions * 100);
+            let msg = '';
+            if (pct === 100) msg = '🌟 完美！全部正确！';
+            else if (pct >= 80) msg = '👏 优秀！继续保持！';
+            else if (pct >= 60) msg = '👍 不错，再强化一下！';
+            else msg = '💪 加油，多练几次会更好！';
+            scoreMsg.textContent = msg;
+        }
+
+        function backToMenu() {
+            selectDiv.style.display = 'block';
+            gameDiv.style.display = 'none';
+            resultDiv.style.display = 'none';
+            state = { currentUnitIdx: -1, questions: [], currentQIndex: 0, correct: 0, answered: false, totalQuestions: 0 };
+        }
+
+        function restartUnit() {
+            if (state.currentUnitIdx >= 0) {
+                resultDiv.style.display = 'none';
+                gameDiv.style.display = 'block';
+                startUnit(state.currentUnitIdx);
+            }
+        }
+
+        gameMenuBtn.addEventListener('click', backToMenu);
+    </script>
+</body>
+</html>
